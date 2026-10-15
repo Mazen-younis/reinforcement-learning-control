@@ -108,8 +108,6 @@ The figures originate from the submitted project report.
 They are not presented as independently reproduced
 results from the current published implementation.
 
----
-
 ## Run the implementation
 
 The source is a single Python file and does not require any project-relative imports. Use a recent Python 3 version with **NumPy** and **Matplotlib** installed.
