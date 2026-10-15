@@ -9,50 +9,59 @@
 
 ## Overview
 
-This repository presents two complementary university projects investigating how reinforcement learning can be applied to **engineering control problems**. Both studies use simulated dynamical systems and evaluate learning-based controllers against explicit performance or actuator constraints.
+This repository presents **two completed university engineering projects** that investigate reinforcement learning (RL) for control tasks. Both use simulated dynamical systems, but they address different problems and learning methods:
 
-The projects cover two different control settings:
+| Project | Simulated system | Methods | Main question |
+|---|---|---|---|
+| **[DC Motor Speed Control](dc-motor-sarsa/README.md)** | Electrical and mechanical DC motor dynamics | Tabular SARSA(0), ε-greedy exploration | Can a learned voltage policy track target speed under different loads? |
+| **[Constrained Trajectory Tracking](constrained-tracking-irl/README.md)** | Spring–mass–damper system | PD baseline, integral actor–critic RL, blended PD–IRL | Does a learning-based controller improve on classical PD control when actuator input is limited? |
 
-1. **DC motor speed control:** learning bounded voltage commands with a tabular SARSA agent and evaluating speed tracking under changing loads.
-2. **Constrained trajectory tracking:** investigating an integral reinforcement learning (IRL) actor–critic controller alongside a classical proportional–derivative (PD) baseline and a blended PD–IRL approach.
+Both projects include **Python implementations, academic reports, selected experimental figures, and technical documentation**. Their results were obtained in simulation, not on physical hardware.
 
-The aim is to examine **how learning algorithms behave in control applications**, what their limitations are, and how performance should be assessed beyond training rewards alone.
+## Project 1 — DC Motor Speed Control with SARSA
 
-## Projects
+A physics-based DC motor simulation provides the environment for a tabular **SARSA(0)** controller. The agent learns to select discrete, bounded voltage commands to track an angular-speed reference while limiting overshoot and responding to varying load torque.
 
-### 1. DC Motor Speed Control with SARSA
+**Technical focus:** motor dynamics · state discretisation · on-policy temporal-difference learning · reward shaping · ε-greedy exploration · evaluation across load conditions
 
-**Status:** Published · [Explore the project](dc-motor-sarsa/)
+### Reported performance
 
-A physics-based DC motor simulation is used to train a **tabular SARSA(0)** controller to select discrete armature voltages. The control objective is to reach a target angular speed quickly while limiting overshoot, respecting voltage constraints, and maintaining performance across different load conditions.
-
-**Technical focus:** DC motor dynamics · SARSA(0) · ε-greedy exploration · reward shaping · constrained actions · robustness evaluation
-
-**Selected results from the submitted course report:**
-
-| Load condition | Rise time to 90% | Overshoot | Steady-state error |
+| Load | Rise time to 90% | Overshoot | Steady-state error |
 |---|---:|---:|---:|
 | No load | 0.78 ms | 0.97% | 0.059 rad/s |
 | Nominal load | 0.80 ms | 0.94% | −0.087 rad/s |
 | High load | 0.84 ms | 0.91% | 0.404 rad/s |
 
-All three **reported** scenarios satisfied the assignment's rise-time (≤ 1 ms) and overshoot (≤ 3%) thresholds.
+The submitted report shows that the evaluated policy met the assignment's **≤ 1 ms rise-time** and **≤ 3% overshoot** requirements in all three scenarios.
 
-**Explore:** [Technical README](dc-motor-sarsa/README.md) · [Python implementation](dc-motor-sarsa/main.py) · [Selected result figures](dc-motor-sarsa/results/) · [Project report (PDF)](dc-motor-sarsa/DC_Motor_Speed_Control_Report.pdf)
+![DC motor greedy-policy speed tracking for three load conditions](dc-motor-sarsa/results/speed_tracking_across_loads.png)
 
-> **Reproducibility note:** These figures come from the submitted report. The published Python source supports additional training configurations and does not, by default, guarantee reproduction of the exact reported values. The project README explains the differences.
+**Explore:** [Technical README](dc-motor-sarsa/README.md) · [Python source](dc-motor-sarsa/main.py) · [Results gallery](dc-motor-sarsa/results/README.md) · [Full report (PDF)](dc-motor-sarsa/DC_Motor_Speed_Control_Report.pdf)
 
-### 2. Integral Reinforcement Learning for Constrained Tracking Control
+> **Reproducibility:** These values and figures are from the submitted course report, not independently regenerated for this GitHub release. The published source includes additional training modes and differences from the report's experiment configuration; consult the [project README](dc-motor-sarsa/README.md) before comparing runs.
 
-**Status:** Being prepared for publication
+## Project 2 — Integral Reinforcement Learning for Constrained Tracking
 
-This study considers a simulated **second-order dynamical system** tracking a time-varying reference under bounded control input. It investigates three approaches: a **classical PD controller**, an **IRL actor–critic controller**, and a **blended PD + IRL strategy**.
+A simulated **spring–mass–damper system** follows a time-varying reference trajectory subject to bounded actuator force. The study compares a classical **proportional–derivative (PD)** controller, an **integral actor–critic reinforcement learning** controller, and a **blended PD–IRL** strategy.
 
-**Technical focus:** constrained optimal control · actor–critic learning · continuous-time dynamics · trajectory tracking · actuator saturation · baseline comparison
+**Technical focus:** optimal control · actor–critic learning · integral Bellman updates · quadratic feature approximation · continuous control · actuator saturation · controller benchmarking
 
-An important finding is that the classical PD baseline achieved lower steady-state tracking errors than the blended IRL controller in the reported test. The work therefore highlights practical trade-offs, rather than claiming that reinforcement learning always outperforms classical control.
+### Reported controller comparison
 
-The source code, full report, evaluation results, and project-specific README will be linked here as they are reviewed and published.
+| Metric | PD baseline | Blended PD + IRL |
+|---|---:|---:|
+| RMS position error (last 2 s) | **0.0537** | 0.1781 |
+| RMS velocity error (last 2 s) | **0.0772** | 0.1053 |
+| Maximum absolute control input | 2.0 | 2.0 |
+| Mean Bellman-error magnitude | — | 0.0424 |
+
+**Key finding:** In this test, the conventional **PD baseline achieved lower tracking errors** than the blended learning-based controller. The project illustrates why RL controllers need to be assessed against meaningful classical baselines rather than judged only on learning progress.
+
+![Position and velocity tracking errors for the blended PD–IRL controller](constrained-tracking-irl/results/blended_irl_tracking_error.png)
+
+**Explore:** [Technical README](constrained-tracking-irl/README.md) · [Python source](constrained-tracking-irl/main.py) · [Results gallery](constrained-tracking-irl/results/README.md) · [Full report (PDF)](constrained-tracking-irl/Integral_Reinforcement_Learning_Report.pdf)
+
+> **Comparison note:** The source uses different simulation durations for the PD and blended runs (10 s and 12 s), meaning the reported final-two-second error windows are not identical. The [project README](constrained-tracking-irl/README.md) details this and other reproducibility considerations.
 
 ## Repository structure
 
@@ -65,25 +74,38 @@ reinforcement-learning-control/
 │   ├── DC_Motor_Speed_Control_Report.pdf
 │   └── results/
 │       ├── README.md
-│       └── [selected training and control figures]
-└── constrained-tracking-irl/    # In preparation
+│       ├── speed_tracking_across_loads.png
+│       ├── training_progress_nominal_1000_episodes.png
+│       └── control_signal_nominal_load.png
+└── constrained-tracking-irl/
+    ├── README.md
+    ├── main.py
+    ├── Integral_Reinforcement_Learning_Report.pdf
+    └── results/
+        ├── README.md
+        ├── pd_tracking_error.png
+        ├── blended_irl_tracking_error.png
+        └── irl_bellman_error.png
 ```
 
-Additional course exercises are **not** included by default: this repository is curated around the two larger engineering studies rather than serving as a dump of every lab assignment.
+## Technologies and running the projects
 
-## Technologies and methods
+- **Language:** Python 3
+- **Scientific libraries:** NumPy and Matplotlib
+- **Learning methods:** SARSA(0), temporal-difference learning, integral reinforcement learning, actor–critic methods
+- **Control and simulation:** DC motor dynamics, spring–mass–damper dynamics, RK4 integration, PD control, constrained control actions
 
-**Language:** Python  
-**Scientific computing:** NumPy, Matplotlib  
-**Reinforcement learning:** SARSA, temporal-difference learning, ε-greedy exploration, integral reinforcement learning, actor–critic methods  
-**Control and evaluation:** DC motor simulation, PD control, reward design, state discretisation, trajectory tracking, input saturation, load disturbances
+Each project is **independent** and provides its own command-line examples, configuration notes, and limitations in its technical README:
 
-Each project directory contains its own technical documentation and implementation details. Dependencies and reproduction instructions should be checked **per project** rather than assumed to be identical.
+- [Run the DC motor SARSA project](dc-motor-sarsa/README.md#run-the-implementation)
+- [Run the constrained-tracking IRL project](constrained-tracking-irl/README.md#run-the-implementation)
+
+Other course labs and exploratory scripts are intentionally excluded so this repository focuses on the two complete engineering studies.
 
 ## Scope and limitations
 
-These are **simulation-based academic studies**, not controllers validated on physical industrial hardware. Reported results are tied to the documented model, scenarios, and training/evaluation settings. They do not establish real-world safety, stability, or production readiness.
+These are **academic simulation studies**. Neither project demonstrates physical-hardware deployment, real-time performance guarantees, or production safety validation. Reported metrics are tied to the original experiment settings and should not be interpreted as fresh benchmark results from the current published scripts.
 
 ## Attribution
 
-This coursework was completed collaboratively by **Mazen Younis and Mert Satici** at **Berliner Hochschule für Technik (BHT)**. The repository documents the work for educational and technical portfolio purposes.
+Both university projects were completed collaboratively by **Mazen Younis and Mert Satici** at **Berliner Hochschule für Technik (BHT)** in 2026. The code, reports, and selected results are presented for technical portfolio and educational purposes.
