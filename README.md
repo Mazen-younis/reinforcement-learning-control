@@ -1,71 +1,34 @@
-# DC Motor Speed Control with SARSA Reinforcement Learning
+# Reinforcement Learning for Control Systems
 
-**A simulation-based reinforcement learning controller for constrained DC motor speed tracking.**
+**Simulation-based reinforcement learning for DC motor speed control and constrained trajectory tracking.**
 
 **Authors:** Mazen Younis · Mert Satici  
 **Institution:** Berliner Hochschule für Technik (BHT) · Computer Engineering  
-**Year:** 2026  
-**Course:** Reinforcement Learning
+**Course:** Reinforcement Learning  
+**Year:** 2026
 
 ## Overview
 
-This project explores whether a reinforcement learning (RL) controller can regulate the angular speed of a DC motor while respecting actuator constraints and handling different external loads. A physics-based motor model provides the simulated environment, and a tabular **SARSA(0)** agent learns to choose voltage commands through interaction and reward feedback.
+This repository presents two complementary university projects investigating how reinforcement learning can be applied to **engineering control problems**. Both studies use simulated dynamical systems and evaluate learning-based controllers against explicit performance or actuator constraints.
 
-The engineering challenge is not just to reach a target speed, but to reach it quickly, limit overshoot, avoid unnecessarily abrupt control changes, and maintain acceptable performance when the load changes.
+The projects cover two different control settings:
 
-> **Scope:** This is a simulation study. The controller was evaluated against a mathematical motor model, not deployed or validated on physical motor hardware.
+1. **DC motor speed control:** learning bounded voltage commands with a tabular SARSA agent and evaluating speed tracking under changing loads.
+2. **Constrained trajectory tracking:** investigating an integral reinforcement learning (IRL) actor–critic controller alongside a classical proportional–derivative (PD) baseline and a blended PD–IRL approach.
 
-## Control problem
+The aim is to examine **how learning algorithms behave in control applications**, what their limitations are, and how performance should be assessed beyond training rewards alone.
 
-The simulated motor combines electrical and mechanical dynamics:
+## Projects
 
-$$
-L\frac{di}{dt}=V-Ri-K_e\omega
-$$
+### 1. DC Motor Speed Control with SARSA
 
-$$
-J\frac{d\omega}{dt}=K_ti-b\omega-\tau_{\mathrm{load}}
-$$
+**Status:** Published · [Explore the project](dc-motor-sarsa/)
 
-where $V$ is the commanded armature voltage, $i$ is motor current, $\omega$ is angular speed, and $\tau_{\mathrm{load}}$ represents resisting load torque.
+A physics-based DC motor simulation is used to train a **tabular SARSA(0)** controller to select discrete armature voltages. The control objective is to reach a target angular speed quickly while limiting overshoot, respecting voltage constraints, and maintaining performance across different load conditions.
 
-The assignment's main performance requirements are:
+**Technical focus:** DC motor dynamics · SARSA(0) · ε-greedy exploration · reward shaping · constrained actions · robustness evaluation
 
-- **Target angular speed:** 100 rad/s.
-- **Rise time:** reach 90% of the reference in no more than **1 ms**.
-- **Overshoot:** no more than **3%**.
-- **Voltage:** stay within the **±24 V** actuator limit.
-- **Robustness:** evaluate the controller under no-load, nominal-load, and high-load conditions.
-
-## Approach
-
-### 1. DC motor simulation
-
-`main.py` implements the motor's electrical and mechanical response using a discrete-time simulation. Its environment returns motor state information, rewards, episode-termination signals, and diagnostics for plotting and evaluation.
-
-### 2. Tabular SARSA controller
-
-The agent uses **on-policy temporal-difference learning** with an **ε-greedy** exploration strategy. In the uploaded implementation:
-
-- **State representation:** discretized angular speed, tracking error, and motor current.
-- **Action space:** nine discrete voltages: −24, −18, −12, −6, 0, 6, 12, 18, and 24 V.
-- **Policy:** actions are selected from a learned state–action value table.
-- **Learning:** SARSA updates action values from observed reward and the next selected action.
-
-The reward function balances tracking accuracy with control effort and smoothness, and includes penalties for excessive overshoot and inappropriate voltage direction.
-
-### 3. Training and evaluation
-
-The source includes two training modes:
-
-- **Separate-load training:** train an agent independently for each load scenario to inspect learning behaviour.
-- **Robust training:** train one agent across randomly selected load scenarios.
-
-The `evaluate_policy` command also includes an **antagonist-guided load-selection** procedure that varies the load conditions encountered during training before evaluating a greedy policy. Its antagonist selects load *scenarios*; it does not choose motor voltages.
-
-## Reported results
-
-The submitted course report evaluates a greedy SARSA policy under three load conditions:
+**Selected results from the submitted course report:**
 
 | Load condition | Rise time to 90% | Overshoot | Steady-state error |
 |---|---:|---:|---:|
@@ -73,59 +36,54 @@ The submitted course report evaluates a greedy SARSA policy under three load con
 | Nominal load | 0.80 ms | 0.94% | −0.087 rad/s |
 | High load | 0.84 ms | 0.91% | 0.404 rad/s |
 
-**Interpretation:** In the reported simulations, all three cases met the specified rise-time and overshoot requirements. The higher load caused a modest increase in steady-state error.
+All three **reported** scenarios satisfied the assignment's rise-time (≤ 1 ms) and overshoot (≤ 3%) thresholds.
 
-**Reproducibility note:** These values are taken from the submitted course report; they are **not presented as results freshly reproduced from the uploaded `main.py`**. The report describes a nominal-load training experiment, whereas the source file also includes separate-load, randomised-load, and antagonist-guided training configurations. Consequently, runs using the current CLI and its defaults may yield different metrics. The report's state formulation also differs from the state representation in the current source. Consult both artifacts when comparing methods and outcomes.
+**Explore:** [Technical README](dc-motor-sarsa/README.md) · [Python implementation](dc-motor-sarsa/main.py) · [Selected result figures](dc-motor-sarsa/results/) · [Project report (PDF)](dc-motor-sarsa/DC_Motor_Speed_Control_Report.pdf)
 
-## Run the implementation
+> **Reproducibility note:** These figures come from the submitted report. The published Python source supports additional training configurations and does not, by default, guarantee reproduction of the exact reported values. The project README explains the differences.
 
-The source is a single Python file and does not require any project-relative imports. Use a recent Python 3 version with **NumPy** and **Matplotlib** installed.
+### 2. Integral Reinforcement Learning for Constrained Tracking Control
 
-From inside `dc-motor-sarsa/`:
+**Status:** Being prepared for publication
 
-```bash
-python -m pip install numpy matplotlib
+This study considers a simulated **second-order dynamical system** tracking a time-varying reference under bounded control input. It investigates three approaches: a **classical PD controller**, an **IRL actor–critic controller**, and a **blended PD + IRL strategy**.
+
+**Technical focus:** constrained optimal control · actor–critic learning · continuous-time dynamics · trajectory tracking · actuator saturation · baseline comparison
+
+An important finding is that the classical PD baseline achieved lower steady-state tracking errors than the blended IRL controller in the reported test. The work therefore highlights practical trade-offs, rather than claiming that reinforcement learning always outperforms classical control.
+
+The source code, full report, evaluation results, and project-specific README will be linked here as they are reviewed and published.
+
+## Repository structure
+
+```text
+reinforcement-learning-control/
+├── README.md
+├── dc-motor-sarsa/
+│   ├── README.md
+│   ├── main.py
+│   ├── DC_Motor_Speed_Control_Report.pdf
+│   └── results/
+│       ├── README.md
+│       └── [selected training and control figures]
+└── constrained-tracking-irl/    # In preparation
 ```
 
-**Generate training curves** for the three individual load scenarios:
+Additional course exercises are **not** included by default: this repository is curated around the two larger engineering studies rather than serving as a dump of every lab assignment.
 
-```bash
-python main.py train_many --episodes 600 --mode separate
-```
+## Technologies and methods
 
-**Train across randomly selected loads:**
+**Language:** Python  
+**Scientific computing:** NumPy, Matplotlib  
+**Reinforcement learning:** SARSA, temporal-difference learning, ε-greedy exploration, integral reinforcement learning, actor–critic methods  
+**Control and evaluation:** DC motor simulation, PD control, reward design, state discretisation, trajectory tracking, input saturation, load disturbances
 
-```bash
-python main.py train_many --episodes 600 --mode robust
-```
+Each project directory contains its own technical documentation and implementation details. Dependencies and reproduction instructions should be checked **per project** rather than assumed to be identical.
 
-**Train and evaluate the antagonist-guided greedy policy:**
+## Scope and limitations
 
-```bash
-python main.py evaluate_policy --train_episodes 1000
-```
-
-By default, plots are written to a local `pictures/` folder. For a CLI-only evaluation without saving images, add `--no_save` to the evaluation command.
-
-> **Note:** `evaluate_policy` trains an agent during each invocation; the repository does not provide a pre-trained policy checkpoint. Results can depend on the training configuration and random seed.
-
-## Repository files
-
-| File | Description |
-|---|---|
-| [`main.py`](main.py) | Motor simulation, SARSA agent, training configurations, evaluation metrics, and visualisation. |
-| [`DC_Motor_Speed_Control_Report.pdf`](DC_Motor_Speed_Control_Report.pdf) | Full course report with motor modelling, methodology, training figures, experimental results, and discussion. |
-
-## Key learning points and limitations
-
-- Designing an RL controller requires **both** a realistic environment and a reward that reflects engineering constraints.
-- A discrete action set simplifies tabular learning but limits voltage resolution.
-- State discretisation is manageable for an educational simulation, but does not scale as readily as function approximation.
-- A policy's performance should be evaluated across multiple disturbance conditions, not judged only by its training return.
-- Results from a simulated motor are **not** equivalent to hardware safety, real-time, or deployment guarantees.
-
-Potential extensions include continuous-action controllers, broader load disturbances, and comparison with carefully tuned classical PI/PID controllers under identical conditions.
+These are **simulation-based academic studies**, not controllers validated on physical industrial hardware. Reported results are tied to the documented model, scenarios, and training/evaluation settings. They do not establish real-world safety, stability, or production readiness.
 
 ## Attribution
 
-This university project was completed collaboratively by **Mazen Younis and Mert Satici** at **Berliner Hochschule für Technik (BHT)**. The repository presents their academic work for technical portfolio purposes.
+This coursework was completed collaboratively by **Mazen Younis and Mert Satici** at **Berliner Hochschule für Technik (BHT)**. The repository documents the work for educational and technical portfolio purposes.
