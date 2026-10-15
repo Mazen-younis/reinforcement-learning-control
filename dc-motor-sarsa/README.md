@@ -77,6 +77,39 @@ The submitted course report evaluates a greedy SARSA policy under three load con
 
 **Reproducibility note:** These values are taken from the submitted course report; they are **not presented as results freshly reproduced from the uploaded `main.py`**. The report describes a nominal-load training experiment, whereas the source file also includes separate-load, randomised-load, and antagonist-guided training configurations. Consequently, runs using the current CLI and its defaults may yield different metrics. The report's state formulation also differs from the state representation in the current source. Consult both artifacts when comparing methods and outcomes.
 
+## Experimental Results and Visualisations
+
+Selected experimental figures from the submitted course
+report illustrate the learning behaviour and closed-loop
+performance of the SARSA controller.
+
+### Speed Tracking Across Different Loads
+
+![DC Motor Speed Tracking](results/speed_tracking_across_loads.png)
+
+The graph compares the angular-speed response under
+no-load, nominal-load, and high-load conditions.
+
+The reported controller tracks the 100 rad/s reference
+while maintaining limited overshoot across the tested
+load conditions.
+
+### Additional Results
+
+The following figures provide further insight into the
+learning and control behaviour:
+
+- [SARSA Training Progress — 1,000 Episodes](results/training_progress_nominal_1000_episodes.png)
+- [Voltage Control Signal — Nominal Load](results/control_signal_nominal_load.png)
+
+**[Explore the complete experimental results gallery →](results/README.md)**
+
+The figures originate from the submitted project report.
+They are not presented as independently reproduced
+results from the current published implementation.
+
+---
+
 ## Run the implementation
 
 The source is a single Python file and does not require any project-relative imports. Use a recent Python 3 version with **NumPy** and **Matplotlib** installed.
